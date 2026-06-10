@@ -13,11 +13,20 @@ from tqdm import tqdm
 DATA_ROOT_DIR = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\main_research\CIPN\P005"
 
 # 2. ステレオパラメータファイルのパス
-CALIB_PARAM_PATH = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\calib_trimed\CIPN\P005\Setting1\camera_params_stereo.npz"
-
+CALIB_PARAM_ROOT = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\calib_trimed\CIPN\P005" ##これにSettingとcamera_params_stereo.npzをつければ良い
+##タスクは4MWALK,ROMBERG,TUGの3つで、Setting1が4MWALK,TUGでSetting2がROMBERG
 
 # 3. 結果を出力するフォルダ
 OUTPUT_ROOT_DIR = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\3D_Result\CIPN\P005"
+
+TASK_SETTING_MAP = {
+    "4MWALK": "Setting1",
+    "TUG":"Setting1",
+    "ROMBERG":"Setting2",
+}
+
+CALIB_FILENAME = "camera_params_stereo.npz"
+
 
 # ==========================================================
 # === クラス定義: 3D計算機 =================================
@@ -66,6 +75,46 @@ class StereoTriangulator:
         points_3d = points_4d[:3] / w
         
         return points_3d.T # Shape (N, 3)
+    
+def remove_jumps_and_interpolate_3d(df_3d, threshold=0.2, limit=5):
+    """
+    3D化後の座標列について、縦方向に見て飛び値をNaNにし、
+    線形補間する。
+
+    threshold:
+        前後平均との差がこの値以上なら飛び値とみなす
+    limit:
+        連続して補間する最大フレーム数
+    """
+    df_fixed = df_3d.copy()
+
+    coord_cols = [
+        c for c in df_fixed.columns
+        if c.endswith("_X") or c.endswith("_Y") or c.endswith("_Z")
+    ]
+
+    for col in coord_cols:
+        s = pd.to_numeric(df_fixed[col], errors="coerce")
+
+        # 前との差
+        diff_prev = (s - s.shift(1)).abs()
+
+        # 1点だけ尖っている値を飛び値とする
+        jump_mask = (
+            (diff_prev >= threshold)
+        )
+        #print(col, "補間対象数:", jump_mask.sum())
+
+        df_fixed.loc[jump_mask, col] = np.nan
+
+    # 線形補間
+    df_fixed[coord_cols] = df_fixed[coord_cols].interpolate(
+        method="linear",
+        limit=limit,
+        limit_direction="both"
+    )
+
+    return df_fixed
 
 # ==========================================================
 # === メイン処理ロジック ===================================
@@ -118,18 +167,22 @@ def process_csv_pair(csv_c1, csv_c2, triangulator, output_path):
         df_3d[f"{part}_Y"] = pts_3d[:, 1]
         df_3d[f"{part}_Z"] = pts_3d[:, 2]
 
+    #飛び値除去＋線形補間
+    df_3d = remove_jumps_and_interpolate_3d(
+        df_3d,
+        threshold=0.2,
+        limit=5
+    )
+
     # 保存
     df_3d.to_csv(output_path, index=False)
     print(f"   💾 保存完了: {os.path.basename(output_path)}")
 
+
 def main():
-    # 計算機初期化
-    if not os.path.exists(CALIB_PARAM_PATH):
-        print(f"❌ エラー: パラメータファイルがありません: {CALIB_PARAM_PATH}")
-        return
-        
-    triangulator = StereoTriangulator(CALIB_PARAM_PATH)
     root_path = Path(DATA_ROOT_DIR)
+    output_root_path = Path(OUTPUT_ROOT_DIR)
+    triangulators = {}
     
     # C1フォルダ内のCSVを探す
     c1_files = list(root_path.rglob("C1/*.csv"))
@@ -137,6 +190,28 @@ def main():
     print(f"📂 処理対象ファイル数: {len(c1_files)}")
 
     for file_c1 in tqdm(c1_files):
+        #rootからの相対パス
+        relative_path = file_c1.parent.relative_to(root_path) # 例: 4MWALK\C1
+        task_name = relative_path.parts[0] # 例: 4MWALK
+
+        if task_name not in TASK_SETTING_MAP:
+            print(f"Setting未定義のタスクです。スキップ：{task_name}")
+            continue
+
+        setting = TASK_SETTING_MAP[task_name]
+
+        calib_param_path = Path(CALIB_PARAM_ROOT)/ setting / CALIB_FILENAME
+
+        if not calib_param_path.exists():
+            print(f"❌ パラメータファイルがありません: {calib_param_path}")
+            continue
+
+        if setting not in triangulators:
+            triangulators[setting] = StereoTriangulator(calib_param_path)
+        
+        triangulator = triangulators[setting]
+
+
         # C2ファイルのパスを推測
         # 親フォルダ名置換: .../C1/... -> .../C2/...
         dir_c2 = str(file_c1.parent).replace("C1", "C2")
@@ -153,10 +228,7 @@ def main():
 
         # 出力先のパス作成
         # 元のタスクフォルダ名 (4MWALK, ONELEG等) を維持
-        relative_path = file_c1.parent.relative_to(root_path) # 例: 4MWALK\C1
-        task_name = relative_path.parts[0] # 例: 4MWALK
-        
-        save_dir = Path(OUTPUT_ROOT_DIR) / task_name
+        save_dir = output_root_path / task_name
         if not save_dir.exists():
             save_dir.mkdir(parents=True)
             

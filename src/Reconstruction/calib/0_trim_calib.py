@@ -9,11 +9,11 @@ from natsort import natsorted
 # === 設定エリア ===========================================
 # ==========================================================
 # 実際に使用しているパスに合わせて書き換えてください
-TARGET_ROOT_DIR = r"C:\Users\yuich\python_project\project_analysis_main_research\data/0_raw/clib/NOCIPN/P002"
+TARGET_ROOT_DIR = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\0_raw\calib\CIPN\P005"
 
 # FFmpegのパス 
-FFMPEG_PATH = r"C:\Users\yuich\python_project\project_analysis_main_research\data\etc\ffmpeg\bin\ffmpeg.exe"
-OUTPUT_ROOT = r"C:\Users\yuich\python_project\project_analysis_main_research\data\1_processed\calib_trimed"
+FFMPEG_PATH = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\etc\ffmpeg\bin\ffmpeg.exe"
+OUTPUT_ROOT = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\calib_trimed"
 
 SR, FPS, HEAD_SEC = 44100, 60, 10
 tempfile.tempdir = r"C:\Temp_FFmpeg" # 必要に応じて変更
@@ -112,7 +112,7 @@ def process_calibration_videos():
     print(f"📛 識別情報: Group={group}, ID={pid}")
     print(f"🎬 ファイル数: C1={len(files_c1)}, C2={len(files_c2)}")
 
-    settings = ["Setting1", "Setting2"] 
+    settings = [ "Setting1", "Setting2"]
     
     for i, setting_name in enumerate(settings):
         if i >= len(files_c1) or i >= len(files_c2):

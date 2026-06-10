@@ -9,11 +9,11 @@ from matplotlib.lines import Line2D
 # =========================================================
 # 1. 設定 (SETTINGS)
 # =========================================================
-BASE_ROOT = r"C:\Users\yuich\python_project\project_analysis_main_research"
+BASE_ROOT = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA"
 SUMMARY_ROOT = os.path.join(BASE_ROOT, r"data/3_summary_feature/ROMBERG_ratio")
 
 # 出力先
-OUTPUT_DIR = os.path.join(BASE_ROOT, r"daily_results/20260223/Crawford_Romberg_LargeStyle")
+OUTPUT_DIR = os.path.join(BASE_ROOT, r"daily_results/20260528/Crawford_Romberg_LargeStyle")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # 解析対象
@@ -124,6 +124,21 @@ for pid in target_list:
         })
 
 df_stats = pd.DataFrame(summary_results)
+# =========================================================
+# CIPNで有意ではない被験者名だけを表示
+# =========================================================
+cipn_non_sig_subjects = df_stats[
+    (df_stats["Group"] == "CIPN") &
+    (df_stats["Metric"] == "RR_path") &
+    (df_stats["Significant"] == "no")
+]["Patient_ID"].unique()
+
+print("\n--- CIPNで有意ではない被験者 ---")
+for sid in cipn_non_sig_subjects:
+    print(sid)
+
+csv_out_path = os.path.join(OUTPUT_DIR, "Stats_Romberg_Large.csv")
+df_stats.to_csv(csv_out_path, index=False)
 csv_out_path = os.path.join(OUTPUT_DIR, "Stats_Romberg_Large.csv")
 df_stats.to_csv(csv_out_path, index=False)
 

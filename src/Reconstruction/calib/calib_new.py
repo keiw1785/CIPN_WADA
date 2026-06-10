@@ -9,7 +9,7 @@ from pathlib import Path
 # === 設定エリア ===========================================
 # ==========================================================
 # 1. 入力: 動画があるフォルダ
-TARGET_DIR = r"C:\Users\yuich\python_project\project_analysis_main_research\data\1_processed\calib_trimed\CIPN\P003\Setting1"
+TARGET_DIR = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\calib_trimed\CIPN\P005\Setting1"
 
 # 2. 出力: 結果(.npz)を保存するフォルダ
 OUTPUT_DIR = TARGET_DIR

@@ -1,158 +1,119 @@
-import os
-import glob
-import re
-import numpy as np
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-from scipy.signal import savgol_filter
+import matplotlib.animation as animation
 
-# =========================================================
-# 1. FFmpegの設定 (ここが重要)
-# =========================================================
-# 指定されたパスを設定
-FFMPEG_PATH = r"C:\Users\yuich\python_project\project_analysis_main_research\data\etc\ffmpeg\bin\ffmpeg.exe"
+# ---------------------------------------------------------
+# 1. FFmpegとファイルのパス設定
+# ---------------------------------------------------------
+# FFmpegのパス
+FFMPEG_PATH = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\etc\ffmpeg\bin\ffmpeg.exe"
 plt.rcParams['animation.ffmpeg_path'] = FFMPEG_PATH
 
-# =========================================================
-# 2. 処理対象の設定
-# =========================================================
-TARGET_GROUP = "CIPN"      # グループ (NOCIPN, CIPN, STUDENT)
-TARGET_SUBJECT = "P003"    # 被験者ID
-TARGET_TASK = "ROMBERG"    # タスク (ROMBERG, ONELEG)
-TARGET_COND = "EO"         # 条件 (EO, EC, L, R)
-TARGET_TRIAL = "T1"        # 試行 (T1, T2, T3)
+# CSVファイルのパス
+csv_path = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\3D_Result\CIPN\P005\TUG\detected_CIPN-TUG-P005-20260528-NORMAL-T3-3D_trim.csv"
+# ---------------------------------------------------------
+# 2. データ読み込み & 前処理
+# ---------------------------------------------------------
+df = pd.read_csv(csv_path)
 
-# 動画の設定
-FPS = 60                   # 動画のフレームレート
-VIDEO_DURATION_SEC = 10    # 作成する秒数 (None なら全データ)
-FRAME_START = 200          # 解析開始フレーム
+# 【重要】欠損値（空欄）がある行を削除
+df = df.dropna()
 
-# パス設定
-BASE_ROOT = r"C:\Users\yuich\python_project\project_analysis_main_research"
-INPUT_ROOT = os.path.join(BASE_ROOT, r"data\2_time_series_feature\main_research\CoG")
-OUTPUT_VIDEO_DIR = os.path.join(BASE_ROOT, r"data\4_videos")
-os.makedirs(OUTPUT_VIDEO_DIR, exist_ok=True)
+if len(df) == 0:
+    raise ValueError("データが空です。")
 
-# ファイル名パターン
-pattern = re.compile(
-    r"detected_(STUDENT|CIPN|NOCIPN)-(ROMBERG|ONELEG)-(P\d{3})-\d{8}-(EO|EC|L|R)-(T[123])-(C1|C2)_trim_CoG\.csv",
-    re.IGNORECASE
-)
+# 関節定義
+joints = [
+    'nose', 'left_eye', 'right_eye', 'left_ear', 'right_ear',
+    'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow',
+    'left_wrist', 'right_wrist', 'left_hip', 'right_hip',
+    'left_knee', 'right_knee', 'left_ankle', 'right_ankle'
+]
 
-# =========================================================
-# 3. 関数定義
-# =========================================================
-def apply_sg_filter(df, win=21, poly=3):
-    """SGフィルター適用"""
-    df = df.copy()
-    # 欠損補間してから配列化
-    vals = df["CoG_X_mm"].interpolate().to_numpy()
-    return savgol_filter(vals, window_length=win, polyorder=poly)
+bones_colored = [
+    (0, 1, 'gray'), (0, 2, 'gray'), (1, 3, 'gray'), (2, 4, 'gray'),
+    (5, 6, 'black'), (5, 11, 'black'), (6, 12, 'black'), (11, 12, 'black'),
+    (5, 7, 'blue'), (7, 9, 'blue'), (11, 13, 'cornflowerblue'), (13, 15, 'cornflowerblue'),
+    (6, 8, 'red'), (8, 10, 'red'), (12, 14, 'salmon'), (14, 16, 'salmon')
+]
 
-def find_files(group, subject, task, cond, trial):
-    """C1(X)とC2(Y)のファイルペアを探す"""
-    search_dir = os.path.join(INPUT_ROOT, group, subject, task)
-    c1_path, c2_path = None, None
-    
-    # C1 (X座標用)
-    for f in glob.glob(os.path.join(search_dir, "C1", "*.csv")):
-        m = pattern.search(os.path.basename(f))
-        if m and m.groups()[2] == subject and m.groups()[3] == cond and m.groups()[4] == trial:
-            c1_path = f
-            break
-            
-    # C2 (Y座標用)
-    for f in glob.glob(os.path.join(search_dir, "C2", "*.csv")):
-        m = pattern.search(os.path.basename(f))
-        if m and m.groups()[2] == subject and m.groups()[3] == cond and m.groups()[4] == trial:
-            c2_path = f
-            break
-            
-    return c1_path, c2_path
+# データ整形 & 正規化
+T = len(df)
+data_norm = np.zeros((T, len(joints), 3))
 
-# =========================================================
-# 4. メイン処理
-# =========================================================
-print(f"Target: {TARGET_SUBJECT} - {TARGET_TASK} - {TARGET_COND}")
-file_c1, file_c2 = find_files(TARGET_GROUP, TARGET_SUBJECT, TARGET_TASK, TARGET_COND, TARGET_TRIAL)
+for i, joint in enumerate(joints):
+    data_norm[:, i, 0] = df[f'{joint}_X'].values
+    data_norm[:, i, 1] = df[f'{joint}_Z'].values   # Y(奥行)
+    data_norm[:, i, 2] = -df[f'{joint}_Y'].values  # Z(高さ)
 
-if not file_c1 or not file_c2:
-    print(f"Error: Files not found.\nC1: {file_c1}\nC2: {file_c2}")
-    exit()
+# 最小値を0にシフト
+data_norm[:, :, 0] -= np.nanmin(data_norm[:, :, 0])
+data_norm[:, :, 1] -= np.nanmin(data_norm[:, :, 1])
+data_norm[:, :, 2] -= np.nanmin(data_norm[:, :, 2])
 
-# データ読み込み
-print("Loading data...")
-try:
-    # C1ファイルの "CoG_X_mm" 列を X座標として使用
-    data_x = apply_sg_filter(pd.read_csv(file_c1))
-    # C2ファイルの "CoG_X_mm" 列を Y座標として使用 (※ファイル構造に依存する既存ロジック)
-    data_y = apply_sg_filter(pd.read_csv(file_c2))
-except Exception as e:
-    print(f"Error reading CSV: {e}")
-    exit()
+# 各軸の最大値（レンジ）を取得
+max_x = np.nanmax(data_norm[:, :, 0])
+max_y = np.nanmax(data_norm[:, :, 1])
+max_z = np.nanmax(data_norm[:, :, 2])
 
-# データ長を揃えてカット
-n_len = min(len(data_x), len(data_y))
-data_x = data_x[FRAME_START:n_len]
-data_y = data_y[FRAME_START:n_len]
+# ---------------------------------------------------------
+# 3. アニメーション設定（余白削除版）
+# ---------------------------------------------------------
+# 横長の動きに合わせて横長の図にする
+fig = plt.figure(figsize=(12, 6))
+ax = fig.add_subplot(111, projection='3d')
 
-# 指定秒数のみにトリミング
-if VIDEO_DURATION_SEC:
-    max_frames = int(FPS * VIDEO_DURATION_SEC)
-    data_x = data_x[:max_frames]
-    data_y = data_y[:max_frames]
+# 【改善点1】グラフ周囲の余白を削除
+plt.subplots_adjust(left=0, right=1, bottom=0, top=0.95)
 
-print(f"Frames to render: {len(data_x)}")
+# 軸の範囲
+ax.set_xlim(0, max_x)
+ax.set_ylim(0, max_y)
+ax.set_zlim(0, max_z)
 
-# --- アニメーション設定 ---
-fig, ax = plt.subplots(figsize=(6, 6))
-ax.set_aspect('equal')
-ax.grid(True, linestyle=':', alpha=0.6)
-ax.set_xlabel("Medial-Lateral (mm)")
-ax.set_ylabel("Anterior-Posterior (mm)")
-title_str = f"CoG Trajectory\n{TARGET_SUBJECT} ({TARGET_COND})"
-ax.set_title(title_str)
+# アスペクト比をデータに合わせる（歪み防止）
+ax.set_box_aspect((max_x, max_y, max_z))
 
-# 軸の固定（動きが見やすいようにマージンを確保）
-margin = 10
-ax.set_xlim(np.min(data_x) - margin, np.max(data_x) + margin)
-ax.set_ylim(np.min(data_y) - margin, np.max(data_y) + margin)
+# 【改善点2】カメラの距離を近づける (デフォルトは10)
+# 値を小さくするほどズームします。7〜8くらいが適当です。
+ax.dist = 7.5
 
-# プロット要素
-line, = ax.plot([], [], '-', color='royalblue', lw=1, alpha=0.6, label='Path')
-point, = ax.plot([], [], 'o', color='tomato', ms=10, markeredgecolor='white', label='CoG')
-time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.set_title('4M Walk Analysis (Zoomed)')
+ax.view_init(elev=20, azim=90) #視点変更
 
-def init():
-    line.set_data([], [])
-    point.set_data([], [])
-    time_text.set_text('')
-    return line, point, time_text
+# 描画オブジェクト
+lines = [ax.plot([], [], [], color=c, lw=2)[0] for _, _, c in bones_colored]
+points, = ax.plot([], [], [], 'ko', markersize=3)
+trail, = ax.plot([], [], [], 'g--', lw=1, alpha=0.5)
+
+l_hip, r_hip = 11, 12
+hip_pos = (data_norm[:, l_hip, :] + data_norm[:, r_hip, :]) / 2
 
 def update(frame):
-    # 軌跡（現在まで）
-    line.set_data(data_x[:frame], data_y[:frame])
-    # 現在点
-    point.set_data([data_x[frame]], [data_y[frame]])
-    # 時間表示
-    time_text.set_text(f'{frame/FPS:.2f} s')
-    return line, point, time_text
+    if frame >= len(data_norm): return lines + [points, trail]
+    current = data_norm[frame]
+    
+    points.set_data(current[:, 0], current[:, 1])
+    points.set_3d_properties(current[:, 2])
+    
+    for line, (j1, j2, _) in zip(lines, bones_colored):
+        line.set_data([current[j1, 0], current[j2, 0]], [current[j1, 1], current[j2, 1]])
+        line.set_3d_properties([current[j1, 2], current[j2, 2]])
+        
+    trail.set_data(hip_pos[:frame+1, 0], hip_pos[:frame+1, 1])
+    trail.set_3d_properties(hip_pos[:frame+1, 2])
+    
+    return lines + [points, trail]
 
-# 動画生成
-print("Generating MP4...")
-ani = FuncAnimation(fig, update, frames=len(data_x), init_func=init, blit=True, interval=1000/FPS)
+ani = animation.FuncAnimation(fig, update, frames=range(0, T, 2), interval=30, blit=False)
 
-# 保存
-save_filename = f"Video_{TARGET_SUBJECT}_{TARGET_TASK}_{TARGET_COND}_{TARGET_TRIAL}.mp4"
-save_path = os.path.join(OUTPUT_VIDEO_DIR, save_filename)
-
-try:
-    # writer='ffmpeg' を明示的に指定
-    ani.save(save_path, writer='ffmpeg', fps=FPS, dpi=150)
-    print(f"\nSUCCESS: Video saved to:\n{save_path}")
-except Exception as e:
-    print(f"\nERROR: {e}")
-    print("Check if the FFMPEG_PATH is correct.")
-
-plt.close()
+# ---------------------------------------------------------
+# 4. 保存
+# ---------------------------------------------------------
+print("MP4保存を開始します...")
+ani.save(r'C:\Users\kei15\CIPN\CIPN_SUGAWARA\daily_results\20260528\skeleton_walk_zoomed.mp4', writer='ffmpeg', fps=30)
+print("保存完了: skeleton_walk_zoomed.mp4")

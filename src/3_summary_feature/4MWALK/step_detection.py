@@ -13,10 +13,10 @@ from scipy import stats
 # Settings: Output and Input Paths
 # ==========================================
 # Output folder
-OUTPUT_BASE_DIR = r"C:\Users\yuich\python_project\project_analysis_main_research\daily_results\20260224\4M\walk_analysis_normalized_ratio_with_stats"
+OUTPUT_BASE_DIR = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\daily_results\20260528\4M\walk_analysis_normalized_ratio_with_stats"
 
 # Input data root folder
-INPUT_ROOT_DIR = r'C:\Users\yuich\python_project\project_analysis_main_research\data\1_processed\3D_Result' 
+INPUT_ROOT_DIR = r'C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\3D_Result' 
 
 # フォント設定（文字化け防止・Windows用）
 plt.rcParams['font.family'] = 'MS Gothic'
@@ -417,7 +417,7 @@ def main_process_center_4m():
     for fpath in all_files:
         fname = os.path.basename(fpath)
         group, subj_id, cond = extract_file_info(fname)
-        subj_dir = os.path.join(OUTPUT_BASE_DIR, subj_id)
+        subj_dir = os.path.join(OUTPUT_BASE_DIR, group, subj_id)
         if not os.path.exists(subj_dir): os.makedirs(subj_dir)
         
         metrics = analyze_center_4m_walk(fpath, subj_dir, os.path.splitext(fname)[0])

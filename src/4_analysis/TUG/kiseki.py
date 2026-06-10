@@ -10,8 +10,8 @@ from scipy.signal import butter, filtfilt
 # ==========================================
 # 設定
 # ==========================================
-OUTPUT_BASE_DIR = r"C:\Users\yuich\python_project\project_analysis_main_research\daily_results\20260224\trajectory_3m_x_only"
-INPUT_ROOT_DIR = r'C:\Users\yuich\python_project\project_analysis_main_research\data\1_processed\3D_Result' 
+OUTPUT_BASE_DIR = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\daily_results\20260528\trajectory_3m_x_only"
+INPUT_ROOT_DIR = r'C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\3D_Result' 
 
 # 閾値設定
 TARGET_DISTANCE_X = 3.0  # X方向の距離閾値
@@ -21,7 +21,15 @@ TARGET_DISTANCE_X = 3.0  # X方向の距離閾値
 # ==========================================
 def extract_file_info(filename):
     fname_upper = filename.upper()
-    group = "CIPN" if "CIPN" in fname_upper else "Student" if "STUDENT" in fname_upper else "Unknown"
+    if "NOCIPN" in fname_upper:
+        group = "NOCIPN"
+    elif "CIPN" in fname_upper:
+        group = "CIPN"
+    elif "STUDENT" in fname_upper:
+        group = "STUDENT"
+    else:
+        group = "Unknown"
+
     match = re.search(r'(P\d+)', fname_upper)
     subject_id = match.group(1) if match else "Unknown"
     condition = "MAX" if "MAX" in fname_upper else "NORMAL" if "NORMAL" in fname_upper else "Unknown"
@@ -288,7 +296,8 @@ def main():
     for f in files:
         fname = os.path.basename(f)
         grp, subj, cond = extract_file_info(fname)
-        save_dir = os.path.join(OUTPUT_BASE_DIR, subj)
+
+        save_dir = os.path.join(OUTPUT_BASE_DIR, grp, subj)
         if not os.path.exists(save_dir): os.makedirs(save_dir)
         
         res = analyze_tug_trajectory_fixed(f, save_dir, os.path.splitext(fname)[0])

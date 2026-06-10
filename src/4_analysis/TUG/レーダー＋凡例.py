@@ -8,9 +8,9 @@ from math import pi
 # ==========================================
 # ★ Settings Area (English Version) ★
 # ==========================================
-INPUT_CSV_PATH = r"C:\Users\yuich\python_project\project_analysis_main_research\daily_results\20260123\TUG\tug_final_ratio_metric\final_svg\tug_metrics_averaged.csv"
+INPUT_CSV_PATH = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\daily_results\20260528\TUG\tug_final_ratio_metric\final_svg\tug_metrics_averaged.csv"
 INPUT_DIR = os.path.dirname(INPUT_CSV_PATH)
-OUTPUT_BASE_DIR = r"C:\Users\yuich\python_project\project_analysis_main_research\daily_results\20260127\advanced_analysis_results_EN_RadarOnly_v3" # v3に変更
+OUTPUT_BASE_DIR = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\daily_results\20260528\advanced_analysis_results_EN_RadarOnly_v3" # v3に変更
 
 # Font settings
 plt.rcParams['font.family'] = ['Arial', 'DejaVu Sans', 'sans-serif']

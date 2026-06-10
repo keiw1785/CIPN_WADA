@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # =========================================
 # PATH
 # =========================================
-BASE = r"C:/Users/yuich/python_project/project_analysis_main_research"
+BASE = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA"
 
 INPUT_ROOT  = os.path.join(BASE, r"data/2_time_series_feature/main_research/CoG")
 OUTPUT_ROOT = os.path.join(BASE, r"data\3_summary_feature\ROMBERG_Variance")
@@ -23,10 +23,10 @@ os.makedirs(OUT_SUMMARY, exist_ok=True)
 # SETTINGS
 # =========================================
 # ▼▼▼ 被験者IDの指定 ▼▼▼
-target_subject_id = "P002"
+target_subject_id = ""
 # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-GROUPS = [ "NOCIPN"]
+GROUPS = [ "NOCIPN", "CIPN", "STUDENT"]
 CONDS  = ["EO", "EC"]
 TRIALS = ["T1", "T2", "T3"]
 

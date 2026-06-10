@@ -13,7 +13,7 @@ from scipy.signal import savgol_filter
 # ▼▼▼【変更点】被験者IDの指定 ▼▼▼
 # 特定の被験者のみ処理したい場合はここにIDを記入（例: "P002"）
 # ※ 全員分処理したい場合は None または "" (空文字) にしてください
-target_subject_id = "P002"
+target_subject_id = ""
 # ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
 # ---------------------------------------------------------
@@ -39,7 +39,7 @@ def apply_sg_filter(df, win=21, poly=3):
 # ---------------------------------------------------------
 # 1. Base Root
 # ---------------------------------------------------------
-BASE_ROOT = r"C:\Users\yuich\python_project\project_analysis_main_research"
+BASE_ROOT = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA"
 
 INPUT_ROOT = os.path.join(BASE_ROOT, r"data\2_time_series_feature\main_research\CoG")
 OUTPUT_ROOT = os.path.join(BASE_ROOT, r"data\3_summary_feature\ROMBERG_ratio")
@@ -48,7 +48,7 @@ os.makedirs(OUTPUT_ROOT, exist_ok=True)
 # ---------------------------------------------------------
 # 2. 定義
 # ---------------------------------------------------------
-GROUPS = ["NOCIPN"]
+GROUPS = ["NOCIPN","CIPN","STUDENT"]
 TASKS = ["ROMBERG"]
 
 ROMBERG_CONDS = ["EO", "EC"]
@@ -267,7 +267,7 @@ for group in GROUPS:
             plt.tight_layout()
             plt.savefig(out_path, dpi=300)
             plt.close(fig)
-            print(f"    ✓ Plot saved: {os.path.basename(out_path)}")
+            print(f"    ✓ Plot saved: {out_path}")
 
             # ---------------------------------------------------------
             # summary（条件別平均 + ロンベルク率）

@@ -7,7 +7,7 @@ import os
 # ==========================================
 # 1. 保存先設定
 # ==========================================
-output_dir = r"C:\Users\yuich\python_project\project_analysis_main_research\daily_results\20260209"
+output_dir = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\daily_results/20260428"
 os.makedirs(output_dir, exist_ok=True)
 print(f"Saving to: {output_dir}")
 

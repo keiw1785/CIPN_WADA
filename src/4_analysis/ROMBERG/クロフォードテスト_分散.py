@@ -11,13 +11,13 @@ import matplotlib.patches as patches
 # =========================================================
 # 1. 設定 (SETTINGS)
 # =========================================================
-BASE_ROOT = r"C:\Users\yuich\python_project\project_analysis_main_research"
+BASE_ROOT = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA"
 
 # 分散の集計CSVのパス
 VARIANCE_SUMMARY_FILE = os.path.join(BASE_ROOT, r"data\3_summary_feature\ROMBERG_Variance\summary\ROMBERG_AllVariance_summary.csv")
 
 # 結果出力先
-OUTPUT_DIR = os.path.join(BASE_ROOT, r"daily_results\20260223\分散\Crawford_Variance_Full_Unique")
+OUTPUT_DIR = os.path.join(BASE_ROOT, r"daily_results\20260528\分散\Crawford_Variance_Full_Unique")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 TARGET_GROUPS = ["CIPN", "NOCIPN"] 
