@@ -152,8 +152,8 @@ iPadを直接Type-Cケーブルで研究室のPCに接続し，動画データ�
   │   ├─ 🔵 ANGLE.py
   │   └─ 🔵 GoB.py
   └─ 🟢 ROMBERG/
-      ├─ 🟢 GoB_L_only.py
-      └─ 🟢 GoB_比率考慮版.py
+      ├─ 🟢 CoM_calib.py
+      └─ 🟢 CoM_統合版.py
 
 3_summary_feature/      要約特徴量の計算・抽出．
   ├─ 🔴 4MWALK/
@@ -168,7 +168,7 @@ iPadを直接Type-Cケーブルで研究室のPCに接続し，動画データ�
 
 4_analysis/             PCA・クラスタリング・グラフ描画など分析処理．
   ├─ 🔴 4MWALK/
-  │   └─ 🔴 箱ひげ図.py
+  │   
   ├─ 🟢 ROMBERG/
   │   ├─ 🟢 クロフォードテスト_軌跡.py
   │   ├─ 🟢 クロフォードテスト_分散.py
