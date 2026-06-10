@@ -4,16 +4,20 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 import os
+import sys
 from matplotlib.lines import Line2D
+from pathlib import Path
+src_root = Path(__file__).resolve().parents[2]
+sys.path.append(str(src_root))
+from utils.config import get_project_root
 
 # =========================================================
 # 1. 設定 (SETTINGS)
 # =========================================================
-BASE_ROOT = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA"
-SUMMARY_ROOT = os.path.join(BASE_ROOT, r"data/3_summary_feature/ROMBERG_ratio")
-
+BASE_ROOT = get_project_root()
+SUMMARY_ROOT = BASE_ROOT / "data" / "3_summary_feature" / "ROMBERG_ratio"
 # 出力先
-OUTPUT_DIR = os.path.join(BASE_ROOT, r"daily_results/20260528/Crawford_Romberg_LargeStyle")
+OUTPUT_DIR = BASE_ROOT / "daily_results" / "20260528" / "Crawford_Romberg_LargeStyle"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # 解析対象

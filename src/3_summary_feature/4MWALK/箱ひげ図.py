@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import re
 import pandas as pd
@@ -10,12 +11,17 @@ import seaborn as sns
 from matplotlib.lines import Line2D
 from scipy.signal import butter, filtfilt, find_peaks
 from scipy import stats
+from pathlib import Path
+src_root = Path(__file__).resolve().parents[2]
+sys.path.append(str(src_root))
+from utils.config import get_project_root
 
 # ==========================================
 # Settings: Output and Input Paths
 # ==========================================
-OUTPUT_BASE_DIR = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\daily_results\20260528\4M\walk_analysis_normalized_ratio_with_stats"
-INPUT_ROOT_DIR = r'C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\3D_Result' 
+BASE_PATH = get_project_root()
+OUTPUT_BASE_DIR = BASE_PATH / "daily_results" / "20260628" / "4M" / "walk_analysis_normalized_ratio_with_stats"
+INPUT_ROOT_DIR = BASE_PATH / "data" / "1_processed" / "3D_Result"
 
 plt.rcParams['font.family'] = 'MS Gothic'
 

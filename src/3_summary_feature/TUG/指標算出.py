@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import re
 import pandas as pd
@@ -8,7 +9,10 @@ import seaborn as sns
 from scipy import stats
 import matplotlib.patches as mpatches
 from scipy.signal import butter, filtfilt, find_peaks
-
+from pathlib import Path
+src_root = Path(__file__).resolve().parents[2]
+sys.path.append(str(src_root))
+from utils.config import get_project_root
 # ==========================================
 # ★ スライド用・視認性強化設定 ★
 # ==========================================
@@ -29,9 +33,10 @@ LINE_WIDTH_GRID = 3.0     # グリッド線の太さ
 # ==========================================
 # 設定 (Settings)
 # ==========================================
-OUTPUT_BASE_DIR = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\daily_results\20260528\TUG\tug_final_ratio_metric/final_svg"
-INPUT_ROOT_DIR = r'C:\Users\kei15\CIPN\CIPN_SUGAWARA\data\1_processed\3D_Result' 
-AVG_CSV_PATH = os.path.join(OUTPUT_BASE_DIR, 'tug_metrics_averaged.csv')
+BASE_PATH = get_project_root()
+OUTPUT_BASE_DIR = BASE_PATH / "daily_results" / "20260528" / "TUG" / "tug_final_ratio_metric" / "final_svg"
+INPUT_ROOT_DIR = BASE_PATH / "data" / "1_processed" / "3D_Result"
+AVG_CSV_PATH = OUTPUT_BASE_DIR / "tug_metrics_averaged.csv"
 EXCLUDE_SUBJECTS = ["P007",'P008'] #STUDENTのうち、除くデータ
 
 # 解析用パラメータ

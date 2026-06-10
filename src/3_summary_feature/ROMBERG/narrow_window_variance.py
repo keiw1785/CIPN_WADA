@@ -1,17 +1,22 @@
 import os
+import sys
 import glob
 import re
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from pathlib import Path
+src_root = Path(__file__).resolve().parents[2]
+sys.path.append(str(src_root))
+from utils.config import get_project_root
 
 # =========================================
 # PATH
 # =========================================
-BASE = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA"
+BASE = get_project_root()
 
-INPUT_ROOT  = os.path.join(BASE, r"data/2_time_series_feature/main_research/CoG")
-OUTPUT_ROOT = os.path.join(BASE, r"data\3_summary_feature\ROMBERG_Variance")
+INPUT_ROOT  = BASE / "data" / "2_time_series_feature" / "main_research" / "CoG"
+OUTPUT_ROOT = BASE / "data" / "3_summary_feature" / "ROMBERG_Variance"
 
 OUT_TS      = os.path.join(OUTPUT_ROOT, "ts_plots")
 OUT_SUMMARY = os.path.join(OUTPUT_ROOT, "summary")

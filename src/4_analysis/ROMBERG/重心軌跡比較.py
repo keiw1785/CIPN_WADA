@@ -6,6 +6,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull
 from scipy.signal import savgol_filter
+import sys
+from pathlib import Path
+src_root = Path(__file__).resolve().parents[2]
+sys.path.append(str(src_root))
+from utils.config import get_project_root
+
 
 # =========================================================
 # ユーザー設定：比較したい2名の情報を入力
@@ -28,13 +34,12 @@ subject_B = {
 # 【設定3】その他の共通設定
 TASK = "ROMBERG"
 TRIAL = "T1"  # 1回目の試行のみ
-BASE_ROOT = r"C:\Users\yuich\python_project\project_analysis_main_research"
-
+BASE_ROOT = get_project_root()
 # ---------------------------------------------------------
 # 内部設定（変更不要）
 # ---------------------------------------------------------
-INPUT_ROOT = os.path.join(BASE_ROOT, r"data\2_time_series_feature\main_research\CoG")
-OUTPUT_ROOT = os.path.join(BASE_ROOT, r"daily_results\20260126")
+INPUT_ROOT = BASE_ROOT / "data" / "2_time_series_feature" / "main_research" / "CoG"
+OUTPUT_ROOT = BASE_ROOT / "daily_results" / "20260126"
 os.makedirs(OUTPUT_ROOT, exist_ok=True)
 
 FRAME_START = 200

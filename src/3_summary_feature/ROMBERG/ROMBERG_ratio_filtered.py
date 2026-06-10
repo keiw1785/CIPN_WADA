@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import re
 import numpy as np
@@ -6,6 +7,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull
 from scipy.signal import savgol_filter
+from pathlib import Path
+src_root = Path(__file__).resolve().parents[2]
+sys.path.append(str(src_root))
+from utils.config import get_project_root
 
 # ---------------------------------------------------------
 # 設定：被験者指定
@@ -39,10 +44,9 @@ def apply_sg_filter(df, win=21, poly=3):
 # ---------------------------------------------------------
 # 1. Base Root
 # ---------------------------------------------------------
-BASE_ROOT = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA"
-
-INPUT_ROOT = os.path.join(BASE_ROOT, r"data\2_time_series_feature\main_research\CoG")
-OUTPUT_ROOT = os.path.join(BASE_ROOT, r"data\3_summary_feature\ROMBERG_ratio")
+BASE_ROOT = get_project_root()
+INPUT_ROOT = BASE_ROOT / "data" / "2_time_series_feature" / "main_research" / "CoG"
+OUTPUT_ROOT = BASE_ROOT / "data"/ "3_summary_feature" / "ROMBERG_ratio"
 os.makedirs(OUTPUT_ROOT, exist_ok=True)
 
 # ---------------------------------------------------------

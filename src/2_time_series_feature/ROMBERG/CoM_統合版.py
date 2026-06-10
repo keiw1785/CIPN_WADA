@@ -1,13 +1,18 @@
 import os
+import sys
 import glob
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
+src_root = Path(__file__).resolve().parents[2]
+sys.path.append(str(src_root))
+from utils.config import get_project_root
 
 # === パス設定 ===
-base_path = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA"
+base_path = get_project_root()
 input_base = os.path.join(base_path, "data", "1_processed", "main_research")
-output_base = os.path.join(base_path, r"data\2_time_series_feature\main_research\CoG")
+output_base = os.path.join(base_path, "data", "2_time_series_feature", "main_research", "CoG")
 
 # ▼▼▼ フィルタリング設定 ▼▼▼
 # 被験者グループの指定（例: "NOCIPN"）

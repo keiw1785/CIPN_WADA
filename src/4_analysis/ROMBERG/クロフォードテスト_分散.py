@@ -7,17 +7,23 @@ import os
 import matplotlib.cm as cm
 from matplotlib.lines import Line2D
 import matplotlib.patches as patches
+import sys
+from pathlib import Path
+src_root = Path(__file__).resolve().parents[2]
+sys.path.append(str(src_root))
+from utils.config import get_project_root
+
 
 # =========================================================
 # 1. 設定 (SETTINGS)
 # =========================================================
-BASE_ROOT = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA"
+BASE_ROOT = get_project_root()
 
 # 分散の集計CSVのパス
-VARIANCE_SUMMARY_FILE = os.path.join(BASE_ROOT, r"data\3_summary_feature\ROMBERG_Variance\summary\ROMBERG_AllVariance_summary.csv")
+VARIANCE_SUMMARY_FILE = BASE_ROOT / "data" / "3_summary_feature" / "ROMBERG_Variance" / "summary" / "ROMBERG_AllVariance_summary.csv"
 
 # 結果出力先
-OUTPUT_DIR = os.path.join(BASE_ROOT, r"daily_results\20260528\分散\Crawford_Variance_Full_Unique")
+OUTPUT_DIR = BASE_ROOT / "daily_results" / "20260528" / "分散" / "Crawford_Variance_Full_Unique"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 TARGET_GROUPS = ["CIPN", "NOCIPN"] 

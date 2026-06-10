@@ -3,11 +3,18 @@ import pandas as pd
 import seaborn as sns
 from scipy import stats
 import os
+import sys
+from pathlib import Path
+src_root = Path(__file__).resolve().parents[2]
+sys.path.append(str(src_root))
+from utils.config import get_project_root
+
 
 # ==========================================
 # 1. 保存先設定
 # ==========================================
-output_dir = r"C:\Users\kei15\CIPN\CIPN_SUGAWARA\daily_results/20260428"
+base_path = get_project_root()
+output_dir = base_path / "daily_results" / "20260428"
 os.makedirs(output_dir, exist_ok=True)
 print(f"Saving to: {output_dir}")
 
